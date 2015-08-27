@@ -89,5 +89,10 @@ class PersonTest extends \PHPUnit_Framework_TestCase
         $faker = new Generator();
         $faker->addProvider(new Person($faker));
         $this->assertContains($faker->gender(), array('male', 'female'));
+        $this->assertContains($faker->genderShort(), array('m', 'f'));
+        $this->assertEquals($faker->gender('male'), 'male');
+        $this->assertEquals($faker->gender('female'), 'female');
+        $this->assertEquals($faker->genderShort('male'), 'm');
+        $this->assertEquals($faker->genderShort('female'), 'f');
     }
 }
