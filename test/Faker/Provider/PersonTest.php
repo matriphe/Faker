@@ -83,4 +83,11 @@ class PersonTest extends \PHPUnit_Framework_TestCase
         $this->assertContains($faker->name('male'), array('John Doe'));
         $this->assertContains($faker->name('female'), array('Jane Doe'));
     }
+    
+    public function testGender()
+    {
+        $faker = new Generator();
+        $faker->addProvider(new Person($faker));
+        $this->assertContains($faker->gender(), array('male', 'female'));
+    }
 }

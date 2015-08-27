@@ -38,7 +38,7 @@ class Person extends \Faker\Provider\Base
     protected static $titleMale = array('Mr.', 'Dr.', 'Prof.');
 
     protected static $titleFemale = array('Mrs.', 'Ms.', 'Miss', 'Dr.', 'Prof.');
-
+    
     /**
      * @param string|null $gender 'male', 'female' or null for any
      * @return string
@@ -122,5 +122,27 @@ class Person extends \Faker\Provider\Base
     public static function titleFemale()
     {
         return static::randomElement(static::$titleFemale);
+    }
+    
+    /**
+     * @example 'male'
+     */
+    public static function gender($gender = null)
+    {
+        if ($gender === static::GENDER_MALE) {
+            return static::GENDER_MALE;
+        } elseif ($gender === static::GENDER_FEMALE) {
+            return static::GENDER_FEMALE;
+        }
+        
+        return static::randomElement(array(static::GENDER_MALE, static::GENDER_FEMALE));
+    }
+    
+    /**
+     * @example 'f'
+     */
+    public static function genderShort($gender = null)
+    {
+        return substr(static::gender($gender), 0, 1);
     }
 }
