@@ -51,7 +51,7 @@ class Company extends \Faker\Provider\Company
         'Perdagangan', 'Pariwisata dan Ekonomi Kreatif',
         'Perhubungan', 'Komunikasi dan Informatika', 'Keuangan', 'Perbankan',
         'Tenaga Kerja dan Transmigrasi', 'Pendidikan dan Kebudayaan',
-        'Kesehatan'
+        'Kesehatan',
     );
 
     /**
@@ -63,5 +63,4 @@ class Company extends \Faker\Provider\Company
     {
         return static::randomElement(static::$business);
     }
-
 }
