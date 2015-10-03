@@ -863,6 +863,13 @@ echo $faker->bankAccountNumber; // "HU09904437680048220079300783"
 
 ```
 
+### `Faker\Provider\id_ID\Company`
+```php
+<?php
+
+echo $faker->business; // "Komunikasi dan Informatika"
+```
+
 ### `Faker\Provider\id_ID\Payment`
 ```php
 <?php
