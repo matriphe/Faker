@@ -5,6 +5,7 @@ namespace Faker\Provider;
 use Faker\Generator;
 use Faker\DefaultGenerator;
 use Faker\UniqueGenerator;
+use Faker\ValidGenerator;
 
 class Base
 {
@@ -155,7 +156,7 @@ class Base
     }
 
     /**
-     * Returns random elements from a provided array
+     * Returns randomly ordered subsequence of $count elements from a provided array
      *
      * @param  array            $array Array to take elements from. Defaults to a-f
      * @param  integer          $count Number of elements to take.
@@ -314,7 +315,7 @@ class Base
         } else {
             $array = str_split($string, 1);
         }
-        return join('', static::shuffleArray($array));
+        return implode('', static::shuffleArray($array));
     }
 
     private static function replaceWildcard($string, $wildcard = '#', $callback = 'static::randomDigit')
@@ -462,7 +463,7 @@ class Base
         // All A-F inside of [] become ABCDEF
         $regex = preg_replace_callback('/\[([^\]]+)\]/', function ($matches) {
             return '[' . preg_replace_callback('/(\w|\d)\-(\w|\d)/', function ($range) {
-                return join(range($range[1], $range[2]), '');
+                return implode(range($range[1], $range[2]), '');
             }, $matches[1]) . ']';
         }, $regex);
         // All [ABC] become B (or A or C)
@@ -506,13 +507,22 @@ class Base
     /**
      * Chainable method for making any formatter optional.
      *
-     * @param float $weight Set the probability of receiving a null value.
-     *                            "0" will always return null, "1" will always return the generator.
-     * @return Generator|DefaultGenerator
+     * @param float|integer $weight Set the probability of receiving a null value.
+     *                              "0" will always return null, "1" will always return the generator.
+     *                              If $weight is an integer value, then the same system works
+     *                              between 0 (always get false) and 100 (always get true).
+     * @return mixed|null
      */
     public function optional($weight = 0.5, $default = null)
     {
-        if (mt_rand() / mt_getrandmax() <= $weight) {
+        // old system based on 0.1 <= $weight <= 0.9
+        // TODO: remove in v2
+        if ($weight > 0 && $weight < 1 && mt_rand() / mt_getrandmax() <= $weight) {
+            return $this->generator;
+        }
+
+        // new system with percentage
+        if (is_int($weight) && mt_rand(1, 100) <= $weight) {
             return $this->generator;
         }
 
@@ -541,5 +551,33 @@ class Base
         }
 
         return $this->unique;
+    }
+
+    /**
+     * Chainable method for forcing any formatter to return only valid values.
+     *
+     * The value validity is determined by a function passed as first argument.
+     *
+     * <code>
+     * $values = array();
+     * $evenValidator = function ($digit) {
+     * 	 return $digit % 2 === 0;
+     * };
+     * for ($i=0; $i < 10; $i++) {
+     * 	 $values []= $faker->valid($evenValidator)->randomDigit;
+     * }
+     * print_r($values); // [0, 4, 8, 4, 2, 6, 0, 8, 8, 6]
+     * </code>
+     *
+     * @param Closure $validator  A function returning true for valid values
+     * @param integer $maxRetries Maximum number of retries to find a unique value,
+     *                            After which an OverflowException is thrown.
+     * @throws \OverflowException When no valid value can be found by iterating $maxRetries times
+     *
+     * @return ValidGenerator A proxy class returning only valid values
+     */
+    public function valid($validator = null, $maxRetries = 10000)
+    {
+        return new ValidGenerator($this->generator, $validator, $maxRetries);
     }
 }
